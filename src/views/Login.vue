@@ -6,7 +6,7 @@
         <div class="user-input1">
           <el-input
             v-model="userName"
-            placeholder="ユーザ名を入力してください"
+            placeholder="Username"
             prefix-icon="el-icon-user"
           ></el-input>
         </div>
@@ -14,8 +14,8 @@
         <div class="user-input2">
           <el-input
             v-model="password"
-            placeholder="暗証番号を入力してください"
-            prefix-icon="el-icon-key"
+            placeholder="Password"
+            prefix-icon="el-icon-lock"
             show-password
           ></el-input>
         </div>
@@ -24,12 +24,8 @@
             <h3>ログイン</h3>
           </a>
         </button>
-        <button class="user-btn2">
-          <a @click="register" href="JavaScript:">
-            <h3>新規作成</h3>
-          </a>
-        </button>
-        <a @click="forgot" class="fp"> 暗証番号を取り戻す </a>
+        <el-button type="text" @click="register" class="ps">新規作成</el-button>
+        <el-button type="text" @click="open" class="clear">クリア</el-button>
       </div>
     </div>
   </div>
@@ -70,8 +66,8 @@ export default {
       }
       // key-valueの形式でデータを発信する
       let formDate = new FormData();
-      formDate.append("userName",this.userName);
-      formDate.append("password",this.password);
+      formDate.append("userName", this.userName);
+      formDate.append("password", this.password);
       this.$http
         .post("/user/login", formDate, {
           Headers: {
@@ -80,24 +76,34 @@ export default {
         })
         .then((res) => {
           this.$message({
-            message:"正確で、ログインが許可されている",
-            type:"success",
+            message: "正確で、ログインが許可されている",
+            type: "success",
           });
-          sessionStorage.setItem("loginId",res.data.data.loginId);
-          sessionStorage.setItem("userName",res.data.data.userName);
-          sessionStorage.setItem("address",res.data.data.address);
-          sessionStorage.setItem("tel",res.data.data.tel);
-          this.$router.push("/showindex")
-          });
+          sessionStorage.setItem("loginId", res.data.data.loginId);
+          sessionStorage.setItem("userName", res.data.data.userName);
+          sessionStorage.setItem("address", res.data.data.address);
+          sessionStorage.setItem("tel", res.data.data.tel);
+          this.$router.push("/showindex");
+        });
     },
     // 登録機能
-    register(){
-      this.$router.push("/register")
+    register() {
+      this.$router.push("/register");
     },
-    //暗証番号の取り戻し
-    forgot(){
-      this.$router.push("/password")
-    }
+    // クリア
+    open() {
+      this.$confirm("入力した情報をクリアしますか。", {
+        confirmButtonText: "OK",
+        type: "warning",
+      }).then(() => {
+        (this.userName = ""),
+          (this.password = ""),
+          this.$message({
+            type: "success",
+            message: "削除しました!",
+          });
+      });
+    },
   },
 };
 </script>
@@ -141,34 +147,30 @@ export default {
   width: 250px;
   left: 65%;
 }
-.fp {
+.ps {
+  left: 50%;
+}
+.clear {
+  left: 62%;
+}
+.ps,
+.clear {
   position: absolute;
-  top: 80%;
-  left: 38%;
+  top: 70%;
   font-size: 15px;
   margin: 12px;
   color: #707e8d;
   font-size: small;
-}
-.fp:hover {
-  cursor: pointer;
-  color: #f45f34;
   text-decoration: underline;
 }
-.user-btn1,
-.user-btn2 {
+.user-btn1 {
+  left: 30%;
   background: #fb966f;
   border-radius: 5px;
   border: none;
   width: 70px;
   position: absolute;
-  top: 70%;
-}
-.user-btn1 {
-  left: 33%;
-}
-.user-btn2 {
-  left: 53%;
+  top: 73%;
 }
 h3 {
   font-size: 14px;
