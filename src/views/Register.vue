@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-ユーザ登録画面
+新規ユーザ登録画面
   </div>
 </template>
 

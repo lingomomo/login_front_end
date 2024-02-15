@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-トップページ
+メインメニュー画面
   </div>
 </template>
 
