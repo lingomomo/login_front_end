@@ -10,8 +10,8 @@
         size="mini"
         ><el-form-item>
           <el-input
-            v-model="limits.id"
-            placeholder="IDを入力してください"
+            v-model="limits.loginId"
+            placeholder="ユーザIDを入力してください"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -37,7 +37,6 @@
           <el-cascader
             v-model="value"
             :options="addressOptions"
-            @change="handleChange"
             :show-all-levels="false"
             :props="{ value: 'id', label: 'title' }"
           ></el-cascader>
@@ -62,7 +61,7 @@
         @row-click="rowClick"
         style="width: 100%"
       >
-      <!-- ラジオテーブル -->
+        <!-- ラジオテーブル -->
         <el-table-column label="選択" fixed="left" width="50">
           <template slot-scope="scope">
             <el-radio :label="scope.row.tel" v-model="userList.tel"
@@ -70,7 +69,12 @@
             </el-radio>
           </template>
         </el-table-column>
-        <el-table-column prop="index" type="index" width="50" label="ID"></el-table-column>
+        <el-table-column
+          prop="index"
+          type="index"
+          width="50"
+          label="番号"
+        ></el-table-column>
         <el-table-column prop="userName" label="ユーザ名" width="180">
         </el-table-column>
         <el-table-column prop="roleName" label="ニックネーム" width="180">
@@ -105,18 +109,18 @@ export default {
       addressOptions: [],
       value1: "",
       limits: {
-        id: "",
+        loginId: "",
         roleName: "",
         validPeriodStart: "",
         validPeriodEnd: "",
-        title: "",
+        addressId: "",
       },
       userList: [],
     };
   },
   created() {
+   this.initAddressOptions();
     this.initUser();
-    this.initAddressOptions();
   },
   methods: {
     // 住所選択肢の初期化
@@ -126,27 +130,28 @@ export default {
         this.addressOptions = res.data.data;
       });
     },
-    handleChange(value) {
-      console.log(value);
-    },
     // 検索一覧画面の初期化
     initUser() {
       if (this.value1 != null) {
-        this.limits.startTime = this.value1[0];
-        this.limits.endTime = this.value1[1];
+        this.limits.validPeriodStart = this.value1[0];
+        this.limits.validPeriodEnd = this.value1[1];
       }
-      this.$http.post("/user/showUser/", this.limits).then((res) => {
+      if (this.value != undefined) {
+        this.limits.addressId = this.value[1];
+      }
+      this.$http.post("/user/showUser", this.limits).then((res) => {
+        console.log(res);
         this.userList = res.data.data;
       });
     },
     // 入力した検索項目をクリアする
     clear() {
       this.limits = {
-        id: "",
+        loginId: "",
         roleName: "",
         validPeriodStart: "",
         validPeriodEnd: "",
-        address: "",
+        addressId: "",
       };
       this.value1 = [];
       this.value = [];
