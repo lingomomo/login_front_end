@@ -20,6 +20,7 @@
             placeholder="ニックネームを入力してください"
           ></el-input>
         </el-form-item>
+        <!-- 日付ピッカー -->
         <el-form-item>
           <el-date-picker
             v-model="value1"
@@ -31,24 +32,15 @@
           >
           </el-date-picker>
         </el-form-item>
-
-
-
-        
+        <!-- 住所カスケードセレクタ -->
         <el-form-item>
           <el-cascader
             v-model="value"
-            :options="options"
+            :options="addressOptions"
             @change="handleChange"
+            :show-all-levels="false"
+            :props="{ value: 'id', label: 'title' }"
           ></el-cascader>
-
-          <el-select
-            v-model="limits.title"
-            placeholder="都道府県を選択してください"
-          >
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
         </el-form-item>
 
         <el-form-item size="large">
@@ -70,14 +62,15 @@
         @row-click="rowClick"
         style="width: 100%"
       >
+      <!-- ラジオテーブル -->
         <el-table-column label="選択" fixed="left" width="50">
           <template slot-scope="scope">
-            <el-radio :label="scope.row.id" v-model="userList.id"
+            <el-radio :label="scope.row.tel" v-model="userList.tel"
               >{{ "   " }}
             </el-radio>
           </template>
         </el-table-column>
-        <el-table-column type="index" width="50" label="ID"></el-table-column>
+        <el-table-column prop="index" type="index" width="50" label="ID"></el-table-column>
         <el-table-column prop="userName" label="ユーザ名" width="180">
         </el-table-column>
         <el-table-column prop="roleName" label="ニックネーム" width="180">
@@ -94,7 +87,7 @@
         <el-table-column prop="registrationDate" label="登録年月日" width="180">
         </el-table-column>
       </el-table>
-      <!-- ボタン -->
+      <!-- 画面に遷移するボタン -->
       <div class="button-box">
         <el-button type="primary" @click="update">変更</el-button>
         <el-button type="primary" @click="detail">詳細</el-button>
@@ -109,7 +102,7 @@ export default {
   data() {
     return {
       value: [],
-        options: [],
+      addressOptions: [],
       value1: "",
       limits: {
         id: "",
@@ -123,17 +116,30 @@ export default {
   },
   created() {
     this.initUser();
+    this.initAddressOptions();
   },
   methods: {
+    // 住所選択肢の初期化
+    initAddressOptions() {
+      this.$http.get("/address/getAddressOptions").then((res) => {
+        console.log(res);
+        this.addressOptions = res.data.data;
+      });
+    },
     handleChange(value) {
-        console.log(value);
-      },
+      console.log(value);
+    },
     // 検索一覧画面の初期化
     initUser() {
+      if (this.value1 != null) {
+        this.limits.startTime = this.value1[0];
+        this.limits.endTime = this.value1[1];
+      }
       this.$http.post("/user/showUser/", this.limits).then((res) => {
         this.userList = res.data.data;
       });
     },
+    // 入力した検索項目をクリアする
     clear() {
       this.limits = {
         id: "",
@@ -142,6 +148,8 @@ export default {
         validPeriodEnd: "",
         address: "",
       };
+      this.value1 = [];
+      this.value = [];
     },
     rowClick(val) {
       // this.tenderProjectId = val.data.projectId;

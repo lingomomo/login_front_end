@@ -81,8 +81,6 @@ export default {
           });
           sessionStorage.setItem("loginId", res.data.data.loginId);
           sessionStorage.setItem("userName", res.data.data.userName);
-          sessionStorage.setItem("address", res.data.data.address);
-          sessionStorage.setItem("tel", res.data.data.tel);
           this.$router.push("/showindex");
         });
     },
