@@ -29,6 +29,7 @@
             range-separator="~"
             start-placeholder="日付FROM"
             end-placeholder="日付TO"
+            value-format="yyyy-MM-dd"
           >
           </el-date-picker>
         </el-form-item>
