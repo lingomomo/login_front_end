@@ -23,7 +23,7 @@
         <!-- 日付ピッカー -->
         <el-form-item>
           <el-date-picker
-            v-model="value1"
+            v-model="dateValue"
             type="daterange"
             :default-time="['00:00:00']"
             range-separator="~"
@@ -35,7 +35,7 @@
         <!-- 住所カスケードセレクタ -->
         <el-form-item>
           <el-cascader
-            v-model="value"
+            v-model="addressValue"
             :options="addressOptions"
             :show-all-levels="false"
             :props="{ value: 'id', label: 'title' }"
@@ -57,24 +57,26 @@
         :data="userList"
         border
         :show-overflow-tooltip="true"
-        highlight-current-row
-        @row-click="rowClick"
         style="width: 100%"
       >
         <!-- ラジオテーブル -->
         <el-table-column label="選択" fixed="left" width="50">
           <template slot-scope="scope">
-            <el-radio :label="scope.row.tel" v-model="userList.tel"
+            <!-- ラジオボタンを押下すると、valの値は選択されたラジオボタンのラベル値(scope.row.loginId)に更新される。 -->
+            <el-radio :label="scope.row.loginId" v-model="val"
               >{{ "   " }}
             </el-radio>
           </template>
         </el-table-column>
+
         <el-table-column
           prop="index"
           type="index"
           width="50"
           label="番号"
         ></el-table-column>
+        <el-table-column prop="loginId" label="ユーザID" width="100">
+        </el-table-column>
         <el-table-column prop="userName" label="ユーザ名" width="180">
         </el-table-column>
         <el-table-column prop="roleName" label="ニックネーム" width="180">
@@ -93,9 +95,9 @@
       </el-table>
       <!-- 画面に遷移するボタン -->
       <div class="button-box">
-        <el-button type="primary" @click="update">変更</el-button>
-        <el-button type="primary" @click="detail">詳細</el-button>
-        <el-button type="primary" @click="create">新規作成</el-button>
+        <el-button type="primary" @click="update()">変更</el-button>
+        <el-button type="primary" @click="detail()">詳細</el-button>
+        <el-button type="primary" @click="create()">新規作成</el-button>
       </div>
     </div>
   </div>
@@ -105,9 +107,10 @@
 export default {
   data() {
     return {
-      value: [],
+      val: null,
+      addressValue: [],
       addressOptions: [],
-      value1: "",
+      dateValue: "",
       limits: {
         loginId: "",
         roleName: "",
@@ -119,28 +122,28 @@ export default {
     };
   },
   created() {
-   this.initAddressOptions();
+    this.initAddressOptions();
     this.initUser();
   },
   methods: {
     // 住所選択肢の初期化
     initAddressOptions() {
       this.$http.get("/address/getAddressOptions").then((res) => {
-        console.log(res);
         this.addressOptions = res.data.data;
       });
     },
     // 検索一覧画面の初期化
     initUser() {
-      if (this.value1 != null) {
-        this.limits.validPeriodStart = this.value1[0];
-        this.limits.validPeriodEnd = this.value1[1];
+      if (this.dateValue != null) {
+        console.log(this.dateValue); //Tue Feb 13 2024 00:00:00 GMT+0900
+        this.limits.validPeriodStart = this.dateValue[0];
+        this.limits.validPeriodEnd = this.dateValue[1];
       }
-      if (this.value != undefined) {
-        this.limits.addressId = this.value[1];
+      if (this.addressValue != undefined) {
+        this.limits.addressId = this.addressValue[1];
       }
       this.$http.post("/user/showUser", this.limits).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.userList = res.data.data;
       });
     },
@@ -153,17 +156,34 @@ export default {
         validPeriodEnd: "",
         addressId: "",
       };
-      this.value1 = [];
-      this.value = [];
+      this.dateValue = [];
+      this.addressValue = [];
+      this.val = null;
+      this.initUser();
     },
-    rowClick(val) {
-      // this.tenderProjectId = val.data.projectId;
-      console.log(val);
-      this.userList.id = val.data.id;
+    update() {
+      if (this.val == null) {
+        this.$message({
+          message: "変更するユーザ情報を選択してください",
+          type: "warning",
+        });
+        return;
+      }
+      this.$router.push("/detail");
     },
-    update() {},
-    detail() {},
-    create() {},
+    detail() {
+      if (this.val == null) {
+        this.$message({
+          message: "ユーザ情報を選択してください",
+          type: "warning",
+        });
+        return;
+      }
+      this.$router.push("/detail");
+    },
+    create() {
+      this.$router.push("/detail");
+    },
   },
 };
 </script>
